@@ -19,8 +19,8 @@ from labelme import utils
 if __name__ == '__main__':
     jpgs_path   = "datasets/JPEGImages"
     pngs_path   = "datasets/SegmentationClass"
-    classes     = ["_background_","aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
-    # classes     = ["_background_","cat","dog"]
+    # classes     = ["_background_","aeroplane", "bicycle", "bird", "boat", "bottle", "bus", "car", "cat", "chair", "cow", "diningtable", "dog", "horse", "motorbike", "person", "pottedplant", "sheep", "sofa", "train", "tvmonitor"]
+    classes     = ["_background_","droplet"]
     
     count = os.listdir("./datasets/before/") 
     for i in range(0, len(count)):
@@ -29,10 +29,10 @@ if __name__ == '__main__':
         if os.path.isfile(path) and path.endswith('json'):
             data = json.load(open(path))
             
-            if data['imageData']:
+            if 'imageData' in data.keys():
                 imageData = data['imageData']
             else:
-                imagePath = os.path.join(os.path.dirname(path), data['imagePath'])
+                imagePath = os.path.join(os.path.dirname(path), data['path'])
                 with open(imagePath, 'rb') as f:
                     imageData = f.read()
                     imageData = base64.b64encode(imageData).decode('utf-8')
@@ -57,7 +57,7 @@ if __name__ == '__main__':
             lbl = utils.shapes_to_label(img.shape, data['shapes'], label_name_to_value)
             
                 
-            PIL.Image.fromarray(img).save(osp.join(jpgs_path, count[i].split(".")[0]+'.jpg'))
+            PIL.Image.fromarray(img).convert('RGB').save(osp.join(jpgs_path, count[i].split(".")[0]+'.jpg'))
 
             new = np.zeros([np.shape(img)[0],np.shape(img)[1]])
             for name in label_names:
@@ -66,4 +66,5 @@ if __name__ == '__main__':
                 new = new + index_all*(np.array(lbl) == index_json)
 
             utils.lblsave(osp.join(pngs_path, count[i].split(".")[0]+'.png'), new)
+           
             print('Saved ' + count[i].split(".")[0] + '.jpg and ' + count[i].split(".")[0] + '.png')
